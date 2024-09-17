@@ -1,0 +1,5 @@
+jwt:
+  auth:
+    converter:
+      resource-id: progetto_psw-springBoot
+      principle-attribute: preferred_username
