@@ -1,10 +1,12 @@
 package org.progettopsw.services;
 
 
+import jakarta.persistence.LockModeType;
 import org.progettopsw.models.Miglioramento;
 import org.progettopsw.models.Utente;
 import org.progettopsw.models.UtenteMiglioramento;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.progettopsw.repositories.UtenteMiglioramentoRepository;
@@ -40,6 +42,7 @@ public class UtenteMiglioramentoService
             utenteMiglioramentoRepository.save(utenteMiglioramento);
     }
 
+    @Lock(LockModeType.OPTIMISTIC)
     @Transactional(readOnly = false)
     public void updateQuantitaMiglioramentoAdUtente(Utente utente, Miglioramento miglioramento, int quantita) throws IllegalArgumentException, MiglioramentoDoesNotExistsException, MiglioramentoMaxLevelReachedException
     {
