@@ -1,6 +1,7 @@
 package org.progettopsw.models;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,6 +28,8 @@ public class Partita
     @Column(name = "esito", nullable = false)
     private String esito;
 
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "data_partita", nullable = false)
     private Date data_partita;
 }
