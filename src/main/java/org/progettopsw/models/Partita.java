@@ -29,7 +29,6 @@ public class Partita
     private String esito;
 
     @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "data_partita", nullable = false)
     private Date data_partita;
 }
