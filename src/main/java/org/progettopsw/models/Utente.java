@@ -17,6 +17,9 @@ public class Utente
     @Column(name = "id_utente", nullable = false)
     private long id_utente;
 
+    @Column(name = "username", unique = true)
+    private String username;
+
     @Column(name = "nome")
     private String nome;
 

@@ -21,7 +21,7 @@ public class MiglioramentoService
     }
 
     @Transactional(readOnly = true)
-    public List<Miglioramento> miglioramentoPerNome(String nome)
+    public Miglioramento miglioramentoPerNome(String nome)
     {
         return miglioramentoRepository.findByNome(nome);
     }

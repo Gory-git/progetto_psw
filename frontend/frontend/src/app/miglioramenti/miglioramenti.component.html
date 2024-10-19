@@ -1,0 +1,17 @@
+<div>
+    {{ text }}
+</div>
+
+
+<div>
+    <ul>
+        <li *ngFor="let miglioramento of miglioramenti">
+            <h2>{{ miglioramento.nome }}</h2>
+            <p><strong>Descrizione:</strong> {{ miglioramento.descrizione }}</p>
+            <p><strong>Crediti:</strong> {{ miglioramento.crediti }}</p>
+            <p><strong>Quantità Massima:</strong> {{ miglioramento.quantita_massima }}</p>
+            <p><strong>Tipologia:</strong> {{ miglioramento.tipologia }}</p>
+            <button (click)="acquire(miglioramento.nome)">ACQUISTA</button>
+        </li>
+      </ul>
+</div>

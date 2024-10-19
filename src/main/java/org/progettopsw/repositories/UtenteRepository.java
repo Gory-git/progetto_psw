@@ -14,6 +14,8 @@ public interface UtenteRepository extends JpaRepository<Utente, Long>
     @Query("UPDATE Utente U SET U.crediti = ?1 WHERE U = ?2")
     void updateCrediti(Utente utente, double crediti);
 
+    Utente findByUsername(String username);
+
     boolean existsByEmail(String email);
 
     Utente findByEmailIgnoreCaseAndPassword(String email, String password);

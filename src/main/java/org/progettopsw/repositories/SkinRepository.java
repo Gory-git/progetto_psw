@@ -11,7 +11,7 @@ import java.util.List;
 public interface SkinRepository extends JpaRepository<Skin, Long>
 {
     @Query("SELECT S FROM Skin S WHERE S.nome LIKE ?1")
-    List<Skin> findByNome(String nome);
+    Skin findByNome(String nome);
 
     @Query("SELECT S FROM Skin S WHERE S.crediti <= ?1")
     List<Skin> findByCrediti(int crediti);

@@ -23,7 +23,7 @@ public class Partita
     private Utente utente;
 
     @Column(name = "crediti_ottenuti", nullable = false)
-    private float crediti_ottenuti;
+    private int crediti_ottenuti;
 
     @Column(name = "esito", nullable = false)
     private String esito;

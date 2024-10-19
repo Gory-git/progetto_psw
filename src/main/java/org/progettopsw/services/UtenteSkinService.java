@@ -3,6 +3,8 @@ package org.progettopsw.services;
 import org.progettopsw.models.Skin;
 import org.progettopsw.models.Utente;
 import org.progettopsw.models.UtenteSkin;
+import org.progettopsw.repositories.SkinRepository;
+import org.progettopsw.support.exceptions.SkinDoesNotExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +18,8 @@ public class UtenteSkinService
 {
     @Autowired
     private UtenteSkinRepository utenteSkinRepository;
+    @Autowired
+    private SkinRepository skinRepository;
 
     @Transactional(readOnly = true)
     public List<Skin> getUtenteSkin(Utente utente) throws IllegalArgumentException
@@ -25,10 +29,12 @@ public class UtenteSkinService
         return utenteSkinRepository.findSkinByUtente(utente);
     }
 
-    public void aggiungiSkinUtente(UtenteSkin utenteSkin) throws IllegalArgumentException, SkinAlreadyOwnedException
+    public void aggiungiSkinUtente(UtenteSkin utenteSkin) throws IllegalArgumentException, SkinAlreadyOwnedException, SkinDoesNotExistsException
     {
         if (utenteSkin == null || utenteSkin.getUtente() == null || utenteSkin.getSkin() == null)
             throw new IllegalArgumentException();
+        if (!skinRepository.findAll().contains(utenteSkin.getSkin()))
+            throw new SkinDoesNotExistsException();
         if (utenteSkinRepository.findSkinByUtente(utenteSkin.getUtente()).contains(utenteSkin.getSkin()))
             throw new SkinAlreadyOwnedException();
         utenteSkinRepository.save(utenteSkin);

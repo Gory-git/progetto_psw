@@ -15,7 +15,7 @@ public class SkinService
     private SkinRepository skinRepository;
 
     @Transactional(readOnly = true)
-    public List<Skin> skinPerNome(String nome)
+    public Skin skinPerNome(String nome)
     {
         return skinRepository.findByNome(nome);
     }

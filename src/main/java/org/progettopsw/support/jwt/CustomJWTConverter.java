@@ -19,6 +19,7 @@ public class CustomJWTConverter implements Converter<Jwt, CustomJWT>
         Collection<GrantedAuthority> authorities = extractAuthorities(jwt);
 
         var customJwt = new CustomJWT(jwt, authorities);
+        customJwt.setUsername(jwt.getClaimAsString("username"));
         customJwt.setNome(jwt.getClaimAsString("given_name"));
         customJwt.setCognome(jwt.getClaimAsString("family_name"));
         return customJwt;

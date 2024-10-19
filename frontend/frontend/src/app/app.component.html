@@ -12,3 +12,13 @@
 <div>
   {{ helloText }}
 </div>
+
+<nav>
+  <ul>
+    <li><a routerLink="/" routerLinkActive="active" ariaCurrentWhenActive="page">Home</a></li>
+    <li><a routerLink="/user" routerLinkActive="active" ariaCurrentWhenActive="page">User</a></li>
+    <li><a routerLink="/miglioramenti" routerLinkActive="active" ariaCurrentWhenActive="page">Miglioramenti</a></li>
+    <li><a routerLink="/skin" routerLinkActive="active" ariaCurrentWhenActive="page">Skin</a></li>
+  </ul>
+</nav>
+<router-outlet></router-outlet>

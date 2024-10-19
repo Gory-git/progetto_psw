@@ -33,6 +33,7 @@ public class UtenteMiglioramentoService
         return utenteMiglioramentoRepository.quantitaMiglioramentoPerUtente(utente, miglioramento);
     }
 
+    @Lock(LockModeType.OPTIMISTIC)
     @Transactional(readOnly = false)
     public void aggiungiMiglioramentoAdUtente(UtenteMiglioramento utenteMiglioramento) throws IllegalArgumentException
     {
@@ -44,12 +45,10 @@ public class UtenteMiglioramentoService
 
     @Lock(LockModeType.OPTIMISTIC)
     @Transactional(readOnly = false)
-    public void updateQuantitaMiglioramentoAdUtente(Utente utente, Miglioramento miglioramento, int quantita) throws IllegalArgumentException, MiglioramentoDoesNotExistsException, MiglioramentoMaxLevelReachedException
+    public void updateQuantitaMiglioramentoAdUtente(Utente utente, Miglioramento miglioramento, int quantita) throws IllegalArgumentException, MiglioramentoMaxLevelReachedException
     {
-        if (utente == null || miglioramento == null || quantita < 0 || utenteMiglioramentoRepository.findMiglioramentiByUtente(utente).contains(miglioramento))
+        if (utente == null || miglioramento == null || quantita < 0 || !utenteMiglioramentoRepository.findMiglioramentiByUtente(utente).contains(miglioramento))
             throw new IllegalArgumentException();
-        if (!utenteMiglioramentoRepository.findMiglioramentiByUtente(utente).contains(miglioramento))
-            throw new MiglioramentoDoesNotExistsException();
         if (utenteMiglioramentoRepository.quantitaMiglioramentoPerUtente(utente, miglioramento) + quantita > miglioramento.getQuantita_massima())
             throw new MiglioramentoMaxLevelReachedException();
         utenteMiglioramentoRepository.updateQuantita(quantita, utente, miglioramento);

@@ -44,4 +44,13 @@ public class UtenteService
             throw new NotEnoughCreditsException();
         utenteRepository.updateCrediti(utente, crediti);
     }
+
+    @Transactional(readOnly = false)
+    public Utente trovaUtente(String username) throws UserNotFoundException
+    {
+        Utente ret = utenteRepository.findByUsername(username);
+        if (ret == null)
+            throw new UserNotFoundException();
+        return ret;
+    }
 }

@@ -11,7 +11,7 @@ import java.util.List;
 public interface MiglioramentoRepository extends JpaRepository<Miglioramento, Long>
 {
     @Query("SELECT M FROM Miglioramento M WHERE M.nome LIKE ?1")
-    List<Miglioramento> findByNome(String nome);
+    Miglioramento findByNome(String nome);
 
     @Query("SELECT M FROM Miglioramento M WHERE M.crediti <= ?1")
     List<Miglioramento> findByCrediti(int crediti);
