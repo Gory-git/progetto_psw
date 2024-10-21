@@ -1,1 +1,17 @@
-<p>skins works!</p>
+<div>
+    {{ text }}
+</div>
+<div>
+    <button (click)="possedute()">Possedute</button>
+    <button (click)="nonPossedute()">NonPossedute</button>
+</div>
+
+<div>
+    <ul>
+        <li *ngFor="let skin of skins">
+            <h2>{{ skin.nome }}</h2>
+            <p><strong>Descrizione:</strong> {{ skin.crediti }}</p>
+            <button (click)="acquire(skin.nome)">ACQUISTA</button>
+        </li>
+      </ul>
+</div>

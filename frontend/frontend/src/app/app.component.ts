@@ -17,9 +17,21 @@ export class AppComponent {
 
   constructor(private oauthService: OAuthService, private httpClient: HttpClient) { }
 
+  login() {
+    this.oauthService.initImplicitFlow();
+  }
+
   logout() {
     this.oauthService.logOut();
   }
+
+  public get userName() {
+
+    var claims = this.oauthService.getIdentityClaims();
+    if (!claims) return null;
+
+    return claims['given_name'];
+}
 
   getHelloText() {
     this.httpClient.get<{ message: string }>('http://localhost:8080/hello', {

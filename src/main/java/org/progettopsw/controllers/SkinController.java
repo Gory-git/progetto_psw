@@ -9,6 +9,7 @@ import org.progettopsw.support.jwt.CustomJWTConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +27,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/skins")
+@CrossOrigin(
+        origins = "http://localhost:4200",
+        allowedHeaders = "*",
+        methods = { RequestMethod.GET, RequestMethod.POST }
+)
 public class SkinController
 {
     @Autowired
@@ -36,6 +42,7 @@ public class SkinController
     private UtenteService utenteService;
 
     @GetMapping("/owned")
+    @PreAuthorize("hasAuthority('ROLE_fullstack-developer')")
     public ResponseEntity getSkinPossedute()
     {
         try
@@ -56,6 +63,7 @@ public class SkinController
     }
 
     @GetMapping("/notowned")
+    @PreAuthorize("hasAuthority('ROLE_fullstack-developer')")
     public ResponseEntity getSkinNonPossedute()
     {
         try
@@ -81,6 +89,7 @@ public class SkinController
     }
 
     @PostMapping("/acquire")
+    @PreAuthorize("hasAuthority('ROLE_fullstack-developer')")
     public ResponseEntity acquireSkin(@Valid @RequestBody String nome)
     {
         try

@@ -19,22 +19,22 @@ export class SkinsService {
 
     constructor(private oauthService: OAuthService,private httpClient: HttpClient) {}
 
-    possedute(): Observable<Skin[]> {
-        return this.httpClient.get<Skin[]>(this.url + 'owned', { 
+    possedute(): Observable<any> {
+        return this.httpClient.get<any>(this.url + 'owned', { 
             headers: { 
               'Authorization': `Bearer ${this.oauthService.getAccessToken()}`,
             }})
     }
 
-    nonPossedute(): Observable<Skin[]> {
-        return this.httpClient.get<Skin[]>(this.url + 'not-owned', {
+    nonPossedute(): Observable<any> {
+        return this.httpClient.get<any>(this.url + 'notowned', {
             headers: { 
               'Authorization': `Bearer ${this.oauthService.getAccessToken()}`,
             }})
     }
 
-    acquire(params: HttpParams): Observable<Skin[]> {
-        return this.httpClient.post<Skin[]>(this.url + 'acquire', {
+    acquire(params: HttpParams): Observable<any> {
+        return this.httpClient.post<any>(this.url + 'acquire', {
             params: params,    
             headers: { 
               'Authorization': `Bearer ${this.oauthService.getAccessToken()}`,

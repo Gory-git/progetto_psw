@@ -1,24 +1,26 @@
 <div>
-  <h2>Fullstack OAuth2 Keycloak</h2>
+  <h1>Progetto Giochino</h1>
 </div>
 <div>
-  <div>
-    <button (click)="getHelloText()">GET HELLO TEXT</button>
-  </div>
+  <h3 *ngIf="!userName">Welcome!</h3>
+  <h3 *ngIf="userName">Hello, {{userName}}, welcome to this Giochino!</h3>
+</div>
+
+<div *ngIf="!userName">
+  <button (click)="login()">LOGIN</button> 
+</div>
+<div *ngIf="userName">
   <div>
     <button (click)="logout()">LOGOUT</button>
   </div>
-</div>
-<div>
-  {{ helloText }}
-</div>
 
-<nav>
-  <ul>
-    <li><a routerLink="/" routerLinkActive="active" ariaCurrentWhenActive="page">Home</a></li>
-    <li><a routerLink="/user" routerLinkActive="active" ariaCurrentWhenActive="page">User</a></li>
-    <li><a routerLink="/miglioramenti" routerLinkActive="active" ariaCurrentWhenActive="page">Miglioramenti</a></li>
-    <li><a routerLink="/skin" routerLinkActive="active" ariaCurrentWhenActive="page">Skin</a></li>
-  </ul>
-</nav>
+  <nav>
+    <ul>
+      <li><a routerLink="/" routerLinkActive="active" ariaCurrentWhenActive="page">Home</a></li>
+      <li><a routerLink="/user" routerLinkActive="active" ariaCurrentWhenActive="page">User</a></li>
+      <li><a routerLink="/miglioramenti" routerLinkActive="active" ariaCurrentWhenActive="page">Miglioramenti</a></li>
+      <li><a routerLink="/skin" routerLinkActive="active" ariaCurrentWhenActive="page">Skin</a></li>
+    </ul>
+  </nav>
+</div>
 <router-outlet></router-outlet>

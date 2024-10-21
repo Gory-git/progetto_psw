@@ -19,8 +19,9 @@ function initializeOauth(oauthService: OAuthService): Promise<void> {
   return new Promise((resolve) => {
     oauthService.configure(authCodeFlowConfig);
     oauthService.setupAutomaticSilentRefresh();
-    oauthService.loadDiscoveryDocumentAndLogin()
-      .then(() => resolve());
+    oauthService.loadDiscoveryDocument()
+      .then(() => {oauthService.tryLogin({}),
+      resolve()});
   })
 }
 

@@ -5,5 +5,4 @@ export interface Miglioramento {
     nome: string
     quantita_massima: number
     tipologia: string
-    utenti: any
 }

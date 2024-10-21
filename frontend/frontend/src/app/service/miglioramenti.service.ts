@@ -18,32 +18,32 @@ export class MiglioramentiService {
 
     constructor(private oauthService: OAuthService,private httpClient: HttpClient) {}
     
-    all(): Observable<Miglioramento[]> {
-        return this.httpClient.get<Miglioramento[]>(this.url+'all', {
+    all(): Observable<any> {
+        return this.httpClient.get<any>(this.url+'all', {
             headers: { 
               'Authorization': `Bearer ${this.oauthService.getAccessToken()}`
             }
           })
     }
 
-    nome(params: HttpParams): Observable<Miglioramento[]> {
-        return this.httpClient.get<Miglioramento[]>(this.url, {
+    nome(params: HttpParams): Observable<any> {
+        return this.httpClient.get<any>(this.url, {
             params: params,    
             headers: { 
               'Authorization': `Bearer ${this.oauthService.getAccessToken()}`,
             }})
     }
 
-    crediti(params: HttpParams): Observable<Miglioramento[]> {
-        return this.httpClient.get<Miglioramento[]>(this.url, {
+    crediti(params: HttpParams): Observable<any> {
+        return this.httpClient.get<any>(this.url, {
             params: params,    
             headers: { 
               'Authorization': `Bearer ${this.oauthService.getAccessToken()}`,
             }})
     }
 
-    acquire(params: HttpParams): Observable<string>{
-        return this.httpClient.post<string>(this.url+'acquire', {
+    acquire(params: HttpParams): Observable<any>{
+        return this.httpClient.post<any>(this.url+'acquire', {
             params: params,    
             headers: { 
               'Authorization': `Bearer ${this.oauthService.getAccessToken()}`,

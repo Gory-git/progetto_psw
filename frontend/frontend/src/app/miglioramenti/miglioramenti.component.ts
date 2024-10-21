@@ -69,7 +69,7 @@ export class MiglioramentiComponent {
       response=> {
       this.text = response
     }, error => {
-      this.text = 'Errore! Acquisto non effettuato'
+      this.text = error.message
     });
   }
 

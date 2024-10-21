@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { Skin } from '../modelli/Skin';
 import { SkinsService } from '../service/skins.service';
 import { HttpParams } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-skins',
   standalone: true,
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './skins.component.html',
   styleUrl: './skins.component.css'
 })
@@ -16,7 +17,6 @@ export class SkinsComponent {
   constructor(private skinsService: SkinsService) { }
 
   ngOnInit() {
-    
   }
 
   possedute() {
@@ -26,7 +26,7 @@ export class SkinsComponent {
         this.skins = []
       } else {
         this.skins = response
-        this.text = ''
+        this.text = 'Possedute'
       }
     })
   }
@@ -38,21 +38,17 @@ export class SkinsComponent {
         this.skins = []
       } else {
         this.skins = response
-        this.text = ''
+        this.text = 'Non Possedute'
       }
     })
   }
 
-  acqire(nome: string) {
+  acquire(nome: string) {
     const params = new HttpParams().set('nome', nome);
-    this.skinsService.acquire(params).subscribe((response)=> {
-      if (!Array.isArray(response)) {
-        this.text = 'No results!'
-        this.skins = []
-      } else {
-        this.skins = response
-        this.text = ''
-      }
+    this.skinsService.acquire(params).subscribe(response=> {
+      this.text = response
+    }, error => {
+      this.text = error.message
     })
   }
 

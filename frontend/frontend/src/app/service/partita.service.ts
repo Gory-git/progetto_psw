@@ -18,8 +18,8 @@ export class PartitaService {
 
     constructor(private oauthService: OAuthService,private httpClient: HttpClient) {}
 
-    salva(params: HttpParams): Observable<string> {
-        return this.httpClient.post<string>(this.url + 'save', {
+    salva(params: HttpParams): Observable<any> {
+        return this.httpClient.post<any>(this.url + 'save', {
             params: params,    
             headers: { 
               'Authorization': `Bearer ${this.oauthService.getAccessToken()}`,
