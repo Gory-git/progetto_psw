@@ -18,7 +18,7 @@ public class Skin
     private long id;
 
     @Column(name = "crediti", nullable = false)
-    private float crediti;
+    private int crediti;
 
     @Column(name = "nome", nullable = false, unique = true)
     private String nome;

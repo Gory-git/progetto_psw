@@ -3,7 +3,8 @@ package org.progettopsw.controllers;
 import org.progettopsw.models.Skin;
 import org.progettopsw.models.Utente;
 import org.progettopsw.models.UtenteSkin;
-import org.progettopsw.support.exceptions.SkinDoesNotExistsException;
+import org.progettopsw.support.dto.SkinDTO;
+import org.progettopsw.support.exceptions.*;
 import org.progettopsw.support.jwt.CustomJWT;
 import org.progettopsw.support.jwt.CustomJWTConverter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import org.progettopsw.services.SkinService;
 import org.progettopsw.services.UtenteService;
 import org.progettopsw.services.UtenteSkinService;
-import org.progettopsw.support.exceptions.NotEnoughCreditsException;
-import org.progettopsw.support.exceptions.SkinAlreadyOwnedException;
-import org.progettopsw.support.exceptions.UserNotFoundException;
 import org.progettopsw.support.messages.ResponseMessage;
 
 import javax.validation.Valid;
@@ -42,43 +40,59 @@ public class SkinController
     private UtenteService utenteService;
 
     @GetMapping("/owned")
-    @PreAuthorize("hasAuthority('ROLE_fullstack-developer')")
+    @PreAuthorize("hasAuthority('ROLE_user')")
     public ResponseEntity getSkinPossedute()
     {
         try
         {
             CustomJWT cJWT = (CustomJWT) SecurityContextHolder.getContext().getAuthentication();
             if (cJWT == null)
-                return new ResponseEntity<>(new ResponseMessage("JWT error!"), HttpStatus.OK);
-            Utente utente = utenteService.trovaUtente(cJWT.getUsername());
+                return new ResponseEntity<>(new ResponseMessage("JWT error!"), HttpStatus.UNAUTHORIZED);
+            Utente utente = utenteService.trovaUtente(cJWT.getEmail());
 
-            List<Skin> ret = utenteSkinService.getUtenteSkin(utente);
-            if (ret.isEmpty())
-                return new ResponseEntity<>(new ResponseMessage("No results!"), HttpStatus.OK);
+            List<Skin> skins = utenteSkinService.getUtenteSkin(utente);
+            if (skins.isEmpty())
+                return new ResponseEntity<>(new ResponseMessage("No results!"), HttpStatus.NOT_FOUND);
+            List<SkinDTO> ret = new LinkedList<>();
+            for (Skin skin : skins)
+            {
+                SkinDTO skinDTO = new SkinDTO();
+                skinDTO.setId(skin.getId());
+                skinDTO.setNome(skin.getNome());
+                skinDTO.setCrediti(skin.getCrediti());
+                ret.add(skinDTO);
+            }
+
             return new ResponseEntity<>(ret, HttpStatus.OK);
         } catch (UserNotFoundException e)
         {
-            return new ResponseEntity<>(new ResponseMessage("Uer not found!"), HttpStatus.OK);
+            return new ResponseEntity<>(new ResponseMessage("Uer not found!"), HttpStatus.NOT_FOUND);
         }
     }
 
     @GetMapping("/notowned")
-    @PreAuthorize("hasAuthority('ROLE_fullstack-developer')")
+    @PreAuthorize("hasAuthority('ROLE_user')")
     public ResponseEntity getSkinNonPossedute()
     {
         try
         {
             CustomJWT cJWT = (CustomJWT) SecurityContextHolder.getContext().getAuthentication();
             if (cJWT == null)
-                return new ResponseEntity<>(new ResponseMessage("JWT error!"), HttpStatus.OK);
-            Utente utente = utenteService.trovaUtente(cJWT.getUsername());
+                return new ResponseEntity<>(new ResponseMessage("JWT error!"), HttpStatus.UNAUTHORIZED);
+            Utente utente = utenteService.trovaUtente(cJWT.getEmail());
 
             List<Skin> possedute = utenteSkinService.getUtenteSkin(utente);
             List<Skin> tutte = skinService.getAll();
-            List<Skin> ret = new LinkedList<>();
+            List<SkinDTO> ret = new LinkedList<>();
             for (Skin skin : tutte)
                 if (!possedute.contains(skin))
-                    ret.add(skin);
+                {
+                    SkinDTO skinDTO = new SkinDTO();
+                    skinDTO.setId(skin.getId());
+                    skinDTO.setNome(skin.getNome());
+                    skinDTO.setCrediti(skin.getCrediti());
+                    ret.add(skinDTO);
+                }
             if (ret.isEmpty())
                 return new ResponseEntity<>(new ResponseMessage("No results!"), HttpStatus.OK);
             return new ResponseEntity<>(ret, HttpStatus.OK);
@@ -89,15 +103,15 @@ public class SkinController
     }
 
     @PostMapping("/acquire")
-    @PreAuthorize("hasAuthority('ROLE_fullstack-developer')")
+    @PreAuthorize("hasAuthority('ROLE_user')")
     public ResponseEntity acquireSkin(@Valid @RequestBody String nome)
     {
         try
         {
             CustomJWT cJWT = (CustomJWT) SecurityContextHolder.getContext().getAuthentication();
             if (cJWT == null)
-                return new ResponseEntity<>(new ResponseMessage("JWT error!"), HttpStatus.OK);
-            Utente utente = utenteService.trovaUtente(cJWT.getUsername());
+                return new ResponseEntity<>(new ResponseMessage("JWT error!"), HttpStatus.UNAUTHORIZED);
+            Utente utente = utenteService.trovaUtente(cJWT.getEmail());
             Skin skin = skinService.skinPerNome(nome);
 
             UtenteSkin utenteSkin = new UtenteSkin();
@@ -106,19 +120,35 @@ public class SkinController
 
             utenteSkinService.aggiungiSkinUtente(utenteSkin);
             utenteService.agiornaCrediti(utenteSkin.getUtente(), -utenteSkin.getSkin().getCrediti());
+
+            return new ResponseEntity<>(new ResponseMessage("Skin acquired!"), HttpStatus.CREATED);
         }catch (SkinAlreadyOwnedException e)
         {
             return new ResponseEntity<>(new ResponseMessage("You already own this skin!"), HttpStatus.BAD_REQUEST);
         } catch (UserNotFoundException e)
         {
-            return new ResponseEntity<>(new ResponseMessage("User don't exists"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseMessage("User don't exists"), HttpStatus.NOT_FOUND);
         } catch (NotEnoughCreditsException e)
         {
             return new ResponseEntity<>(new ResponseMessage("Not enough credits"), HttpStatus.BAD_REQUEST);
         } catch (SkinDoesNotExistsException e)
         {
-            return new ResponseEntity<>(new ResponseMessage("Skin don't exists"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseMessage("Skin don't exists"), HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(new ResponseMessage("Skin acquired!"), HttpStatus.CREATED);
     }
+
+    @PostMapping("/save")
+    @PreAuthorize("hasAuthority('ROLE_admin')")
+    public ResponseEntity salvaSkin(@Valid @RequestBody Skin skin)
+    {
+        try
+        {
+            skinService.nuovaSkin(skin);
+
+            return new ResponseEntity<>(new ResponseMessage("Skin added!"), HttpStatus.CREATED);
+        } catch (SkinAlreadyExistsException e) {
+            return new ResponseEntity<>(new ResponseMessage("Skin already exists"), HttpStatus.BAD_REQUEST);
+        }
+    }
+
 }

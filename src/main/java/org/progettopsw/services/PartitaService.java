@@ -20,12 +20,12 @@ public class PartitaService
     @Autowired
     private PartitaRepository partitaRepository;
 
-    @Transactional(readOnly = true)
-    public Partita salvaPartita(Partita partita) throws AlreadySavedGameException
+    @Transactional(readOnly = false)
+    public void salvaPartita(Partita partita) throws AlreadySavedGameException
     {
         if (partitaRepository.existsById(partita.getId()))
             throw new AlreadySavedGameException();
-        return partitaRepository.save(partita);
+        partitaRepository.save(partita);
     }
 
     @Transactional(readOnly = true)

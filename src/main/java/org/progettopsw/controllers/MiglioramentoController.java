@@ -1,8 +1,11 @@
 package org.progettopsw.controllers;
 
 import org.progettopsw.models.Miglioramento;
+import org.progettopsw.models.Skin;
 import org.progettopsw.models.Utente;
 import org.progettopsw.models.UtenteMiglioramento;
+import org.progettopsw.support.dto.MiglioramentoDTO;
+import org.progettopsw.support.dto.SkinDTO;
 import org.progettopsw.support.jwt.CustomJWT;
 import org.progettopsw.support.jwt.CustomJWTConverter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +26,8 @@ import org.progettopsw.support.exceptions.UserNotFoundException;
 import org.progettopsw.support.messages.ResponseMessage;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 @RestController
@@ -42,26 +47,43 @@ public class MiglioramentoController
     private UtenteService utenteService;
 
     @GetMapping("/all")
-    @PreAuthorize("hasAuthority('ROLE_fullstack-developer')")
+    @PreAuthorize("hasAuthority('ROLE_user')")
     @Transactional
     public ResponseEntity getMiglioramentiDisponibili()
     {
-        List<Miglioramento> ret = miglioramentoService.findAll();
-        if (ret.isEmpty())
+        List<Miglioramento> miglioramenti = miglioramentoService.findAll();
+        if (miglioramenti.isEmpty())
             return new ResponseEntity<>(new ResponseMessage("No results!"), HttpStatus.OK);
+        List<MiglioramentoDTO> ret = new ArrayList<>();
+        for (Miglioramento miglioramento : miglioramenti)
+        {
+            MiglioramentoDTO dto = new MiglioramentoDTO();
+            dto.setId(miglioramento.getId());
+            dto.setNome(miglioramento.getNome());
+            dto.setCrediti(miglioramento.getCrediti());
+            dto.setDescrizione(miglioramento.getDescrizione());
+            dto.setTipologia(miglioramento.getTipologia());
+            ret.add(dto);
+        }
         return new ResponseEntity<>(ret, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    @PreAuthorize("hasAuthority('ROLE_fullstack-developer')")
+    @PreAuthorize("hasAuthority('ROLE_user')")
     public ResponseEntity getMiglioramentoByNome(@RequestParam(value="nome") String nome)
     {
         try
         {
-            Miglioramento ret = miglioramentoService.miglioramentoPerNome(nome);
-            if (ret == null)
+            Miglioramento miglioramento = miglioramentoService.miglioramentoPerNome(nome);
+            if (miglioramento == null)
                 return new ResponseEntity<>(new ResponseMessage("No results!"), HttpStatus.OK);
-            return new ResponseEntity<>(ret, HttpStatus.OK);
+            MiglioramentoDTO dto  = new MiglioramentoDTO();
+            dto.setId(miglioramento.getId());
+            dto.setNome(miglioramento.getNome());
+            dto.setCrediti(miglioramento.getCrediti());
+            dto.setDescrizione(miglioramento.getDescrizione());
+            dto.setTipologia(miglioramento.getTipologia());
+            return new ResponseEntity<>(dto, HttpStatus.OK);
         }catch(Exception e)
         {
             return new ResponseEntity<>(new ResponseMessage("Errore!"), HttpStatus.OK);
@@ -69,14 +91,27 @@ public class MiglioramentoController
     }
 
     @GetMapping("/search/{crediti}")
-    @PreAuthorize("hasAuthority('ROLE_fullstack-developer')")
+    @PreAuthorize("hasAuthority('ROLE_user')")
     public ResponseEntity getMiglioramentoByCrediti(@PathVariable("crediti") int crediti)
     {
         try
         {
-            List<Miglioramento> ret = miglioramentoService.miglioramentoPerCrediti(crediti);
-            if (ret.isEmpty())
+            List<Miglioramento> miglioramenti = miglioramentoService.miglioramentoPerCrediti(crediti);
+
+            if (miglioramenti.isEmpty())
                 return new ResponseEntity<>(new ResponseMessage("No results!"), HttpStatus.OK);
+
+            List<MiglioramentoDTO> ret = new ArrayList<>();
+            for (Miglioramento miglioramento : miglioramenti)
+            {
+                MiglioramentoDTO dto = new MiglioramentoDTO();
+                dto.setId(miglioramento.getId());
+                dto.setNome(miglioramento.getNome());
+                dto.setCrediti(miglioramento.getCrediti());
+                dto.setDescrizione(miglioramento.getDescrizione());
+                dto.setTipologia(miglioramento.getTipologia());
+                ret.add(dto);
+            }
             return new ResponseEntity<>(ret, HttpStatus.OK);
         }catch(Exception e)
         {
@@ -85,7 +120,7 @@ public class MiglioramentoController
     }
 
     @PostMapping("/acquire")
-    @PreAuthorize("hasAuthority('ROLE_fullstack-developer')")
+    @PreAuthorize("hasAuthority('ROLE_user')")
     public ResponseEntity acquireMiglioramento(@Valid @RequestBody String nome)
     {
         try
@@ -93,7 +128,7 @@ public class MiglioramentoController
             CustomJWT cJWT = (CustomJWT) SecurityContextHolder.getContext().getAuthentication();
             if (cJWT == null)
                 return new ResponseEntity<>(new ResponseMessage("JWT error!"), HttpStatus.OK);
-            Utente utente = utenteService.trovaUtente(cJWT.getUsername());
+            Utente utente = utenteService.trovaUtente(cJWT.getEmail());
             Miglioramento miglioramento = miglioramentoService.miglioramentoPerNome(nome);
 
             UtenteMiglioramento utenteMiglioramento = new UtenteMiglioramento();
@@ -107,6 +142,7 @@ public class MiglioramentoController
                 utenteMiglioramentoService.updateQuantitaMiglioramentoAdUtente(utenteMiglioramento.getUtente(), utenteMiglioramento.getMiglioramento(), utenteMiglioramento.getQuantita());
             utenteService.agiornaCrediti(utenteMiglioramento.getUtente(), -utenteMiglioramento.getMiglioramento().getCrediti());
 
+            return new ResponseEntity<>(new ResponseMessage("Miglioramento acquired!"), HttpStatus.CREATED);
         } catch (UserNotFoundException e)
         {
             return new ResponseEntity<>(new ResponseMessage("User doesn't exists"), HttpStatus.BAD_REQUEST);
@@ -117,6 +153,5 @@ public class MiglioramentoController
         {
             return new ResponseEntity<>(new ResponseMessage("You can't buy this much miglioramento!"), HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(new ResponseMessage("Miglioramento acquired!"), HttpStatus.CREATED);
     }
 }

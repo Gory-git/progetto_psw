@@ -13,7 +13,7 @@ import java.util.Collection;
 @Setter
 public class CustomJWT extends JwtAuthenticationToken
 {
-    private String username;
+    private String email;
     private String nome;
     private String cognome;
     public CustomJWT(Jwt jwt, Collection<? extends GrantedAuthority> authorities) {

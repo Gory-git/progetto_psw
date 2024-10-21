@@ -13,13 +13,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 })
 export class AppComponent {
   title = 'psw_front'
-  helloText = '';
 
   constructor(private oauthService: OAuthService, private httpClient: HttpClient) { }
-
-  login() {
-    this.oauthService.initImplicitFlow();
-  }
 
   logout() {
     this.oauthService.logOut();
@@ -31,15 +26,5 @@ export class AppComponent {
     if (!claims) return null;
 
     return claims['given_name'];
-}
-
-  getHelloText() {
-    this.httpClient.get<{ message: string }>('http://localhost:8080/hello', {
-      headers: {
-        'Authorization': `Bearer ${this.oauthService.getAccessToken()}`
-      }
-    }).subscribe(result => {
-      this.helloText = result.message;
-    });
   }
 }

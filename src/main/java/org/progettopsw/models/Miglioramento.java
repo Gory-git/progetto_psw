@@ -19,7 +19,7 @@ public class Miglioramento
     private long id;
 
     @Column(name = "crediti", nullable = false)
-    private float crediti;
+    private int crediti;
 
     @Column(name = "descrizione", nullable = false, unique = true, length = 512)
     private String descrizione;

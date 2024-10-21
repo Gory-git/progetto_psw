@@ -26,14 +26,6 @@ public class UtenteService
         return utenteRepository.save(utente);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
-    public Utente accediUtente(Utente utente) throws UserNotFoundException
-    {
-        Utente u = utenteRepository.findByEmailIgnoreCaseAndPassword(utente.getEmail(), utente.getPassword());
-        if (u == null)
-            throw new UserNotFoundException();
-        return u;
-    }
     @Lock(LockModeType.OPTIMISTIC)
     @Transactional(readOnly = false)
     public void agiornaCrediti(Utente utente, double crediti) throws UserNotFoundException, NotEnoughCreditsException
@@ -46,11 +38,18 @@ public class UtenteService
     }
 
     @Transactional(readOnly = false)
-    public Utente trovaUtente(String username) throws UserNotFoundException
+    public Utente trovaUtente(String email) throws UserNotFoundException
     {
-        Utente ret = utenteRepository.findByUsername(username);
+        Utente ret = utenteRepository.findByEmailIgnoreCase(email);
         if (ret == null)
             throw new UserNotFoundException();
         return ret;
+    }
+
+    @Transactional(readOnly = false)
+    public void nuovoUtente(Utente utente) throws UserAlreadyExistsException {
+        if (utenteRepository.existsByEmail(utente.getEmail()))
+            throw new UserAlreadyExistsException();
+        utenteRepository.save(utente);
     }
 }

@@ -4,6 +4,7 @@ import { routes } from './app.routes';
 import { AuthConfig, OAuthService, provideOAuthClient } from 'angular-oauth2-oidc';
 import { provideHttpClient } from '@angular/common/http';
 import {provideClientHydration} from "@angular/platform-browser";
+import { UtenteService } from './service/utente.service';
 
 export const authCodeFlowConfig: AuthConfig = {
   issuer: 'http://localhost:8180/realms/my-test-realm',
@@ -15,13 +16,15 @@ export const authCodeFlowConfig: AuthConfig = {
   showDebugInformation: true,
 }
 
-function initializeOauth(oauthService: OAuthService): Promise<void> {
+function initializeOauth(oauthService: OAuthService, utenteService: UtenteService): Promise<void> {
   return new Promise((resolve) => {
     oauthService.configure(authCodeFlowConfig);
     oauthService.setupAutomaticSilentRefresh();
-    oauthService.loadDiscoveryDocument()
-      .then(() => {oauthService.tryLogin({}),
-      resolve()});
+    oauthService.loadDiscoveryDocumentAndTryLogin()
+      .then(() => {
+        utenteService.salva(),
+        resolve()
+      });
   })
 }
 
@@ -34,9 +37,9 @@ export const appConfig: ApplicationConfig = {
     provideOAuthClient(),
     {
       provide: APP_INITIALIZER,
-      useFactory: (oauthService: OAuthService) => {
+      useFactory: (oauthService: OAuthService, utenteService: UtenteService) => {
         return() => {
-          initializeOauth(oauthService)
+          initializeOauth(oauthService, utenteService)
         }
       },
       multi: true,

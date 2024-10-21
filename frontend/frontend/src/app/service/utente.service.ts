@@ -18,10 +18,16 @@ export class UtenteService {
 
     constructor(private oauthService: OAuthService,private httpClient: HttpClient) {}
 
-    salva(params: HttpParams): Observable<string> {
-        return this.httpClient.post<string>(this.url + 'register', {
-            params: params,    
-            headers: { 
+    getInfo(): Observable<any> {
+        return this.httpClient.post<any>(this.url + 'register', {
+            headers: {
+              'Authorization': `Bearer ${this.oauthService.getAccessToken()}`,
+            }})
+    }
+
+    salva(): Observable<any> {
+        return this.httpClient.post<any>(this.url + 'register', {
+            headers: {
               'Authorization': `Bearer ${this.oauthService.getAccessToken()}`,
             }})
     }

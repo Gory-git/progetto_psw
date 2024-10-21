@@ -17,9 +17,6 @@ public class Utente
     @Column(name = "id_utente", nullable = false)
     private long id_utente;
 
-    @Column(name = "username", unique = true)
-    private String username;
-
     @Column(name = "nome")
     private String nome;
 
@@ -28,9 +25,6 @@ public class Utente
 
     @Column(name = "e_mail", nullable = false, unique = true)
     private String email;
-
-    @Column(name = "password", nullable = false)
-    private String password;
 
     @Column(name = "crediti")
     private int crediti;

@@ -1,6 +1,9 @@
 package org.progettopsw.services;
 
+import org.progettopsw.models.Miglioramento;
 import org.progettopsw.models.Skin;
+import org.progettopsw.support.exceptions.MiglioramentoAlreadyExistsException;
+import org.progettopsw.support.exceptions.SkinAlreadyExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,14 +22,23 @@ public class SkinService
     {
         return skinRepository.findByNome(nome);
     }
+
     @Transactional(readOnly = true)
     public List<Skin> skinPerCrediti(int crediti)
     {
         return skinRepository.findByCrediti(crediti);
     }
+
     @Transactional(readOnly = true)
     public List<Skin> getAll()
     {
         return skinRepository.findAll();
+    }
+
+    @Transactional(readOnly = false)
+    public void nuovaSkin(Skin skin) throws SkinAlreadyExistsException {
+        if (skinRepository.findByNome(skin.getNome()) != null)
+            throw new SkinAlreadyExistsException();
+        skinRepository.save(skin);
     }
 }

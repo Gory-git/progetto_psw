@@ -2,25 +2,18 @@
   <h1>Progetto Giochino</h1>
 </div>
 <div>
-  <h3 *ngIf="!userName">Welcome!</h3>
-  <h3 *ngIf="userName">Hello, {{userName}}, welcome to this Giochino!</h3>
+  <h3>Hello, {{userName}}, welcome to this Giochino!</h3>
+</div>
+<div>
+  <button (click)="logout()">LOGOUT</button>
 </div>
 
-<div *ngIf="!userName">
-  <button (click)="login()">LOGIN</button> 
-</div>
-<div *ngIf="userName">
-  <div>
-    <button (click)="logout()">LOGOUT</button>
-  </div>
-
-  <nav>
-    <ul>
-      <li><a routerLink="/" routerLinkActive="active" ariaCurrentWhenActive="page">Home</a></li>
-      <li><a routerLink="/user" routerLinkActive="active" ariaCurrentWhenActive="page">User</a></li>
-      <li><a routerLink="/miglioramenti" routerLinkActive="active" ariaCurrentWhenActive="page">Miglioramenti</a></li>
-      <li><a routerLink="/skin" routerLinkActive="active" ariaCurrentWhenActive="page">Skin</a></li>
-    </ul>
-  </nav>
-</div>
+<nav>
+  <ul>
+    <li><a routerLink="/" routerLinkActive="active" ariaCurrentWhenActive="page">Home</a></li>
+    <li><a routerLink="/user" routerLinkActive="active" ariaCurrentWhenActive="page">User</a></li>
+    <li><a routerLink="/miglioramenti" routerLinkActive="active" ariaCurrentWhenActive="page">Miglioramenti</a></li>
+    <li><a routerLink="/skin" routerLinkActive="active" ariaCurrentWhenActive="page">Skin</a></li>
+  </ul>
+</nav>
 <router-outlet></router-outlet>
