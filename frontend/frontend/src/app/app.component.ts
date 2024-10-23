@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { OAuthService } from 'angular-oauth2-oidc';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { UtenteService } from './service/utente.service';
 
 @Component({
   selector: 'app-root',
@@ -13,11 +14,19 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 })
 export class AppComponent {
   title = 'psw_front'
+  text = ''
+  constructor(private oauthService: OAuthService, private httpClient: HttpClient, private utenteService: UtenteService) { }
 
-  constructor(private oauthService: OAuthService, private httpClient: HttpClient) { }
+  ngOnInit() {
+    this.utenteService.salva().subscribe(error => {
+      this.text = error.message
+    })
+  }
+
+
 
   logout() {
-    this.oauthService.logOut();
+    this.oauthService.revokeTokenAndLogout()
   }
 
   public get userName() {

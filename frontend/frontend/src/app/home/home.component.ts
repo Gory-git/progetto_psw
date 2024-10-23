@@ -17,9 +17,9 @@ export class HomeComponent {
   constructor(private oauthService: OAuthService, private httpClient: HttpClient, private partitaService: PartitaService) { }
 
   play() {
-    const punti_acquisiti = Math.floor(Math.random() * 101);
+    const punti_acquisiti: number = Math.floor(Math.random() * 101);
     this.text = "hai acquisito " + punti_acquisiti + " crediti!!!"
-    const params = new HttpParams().set('punti_acquisiti', punti_acquisiti);
+    const params = new HttpParams().set('punti', punti_acquisiti);
     this.partitaService.salva(params).subscribe(error => {
       this.text = error.message;
     });

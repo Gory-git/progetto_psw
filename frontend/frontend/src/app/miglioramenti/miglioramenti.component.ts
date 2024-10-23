@@ -63,8 +63,8 @@ export class MiglioramentiComponent {
     });
   }
 
-  acquire(miglioramento: string) {
-    const params = new HttpParams().set('miglioramento', miglioramento);
+  acquire(nome: string) {
+    const params = new HttpParams().set('nome', nome);
     this.miglioramentiService.acquire(params).subscribe(
       response=> {
       this.text = response

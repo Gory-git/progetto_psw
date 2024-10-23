@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { OAuthService } from "angular-oauth2-oidc";
+import { Utente } from "../modelli/Utente";
 
 const httpOptions = {
     headers: new HttpHeaders({
@@ -19,16 +20,17 @@ export class UtenteService {
     constructor(private oauthService: OAuthService,private httpClient: HttpClient) {}
 
     getInfo(): Observable<any> {
-        return this.httpClient.post<any>(this.url + 'register', {
+        return this.httpClient.get<any>(this.url + 'page', {
             headers: {
-              'Authorization': `Bearer ${this.oauthService.getAccessToken()}`,
+                'Authorization': `Bearer ${this.oauthService.getAccessToken()}`,
             }})
     }
 
     salva(): Observable<any> {
-        return this.httpClient.post<any>(this.url + 'register', {
+        return this.httpClient.post<any>(this.url + 'register', null, {
             headers: {
-              'Authorization': `Bearer ${this.oauthService.getAccessToken()}`,
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${this.oauthService.getAccessToken()}`,
             }})
     }
 }

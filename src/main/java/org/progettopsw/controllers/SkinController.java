@@ -4,6 +4,7 @@ import org.progettopsw.models.Skin;
 import org.progettopsw.models.Utente;
 import org.progettopsw.models.UtenteSkin;
 import org.progettopsw.support.dto.SkinDTO;
+import org.progettopsw.support.embeddables.UtenteSkinKey;
 import org.progettopsw.support.exceptions.*;
 import org.progettopsw.support.jwt.CustomJWT;
 import org.progettopsw.support.jwt.CustomJWTConverter;
@@ -40,7 +41,7 @@ public class SkinController
     private UtenteService utenteService;
 
     @GetMapping("/owned")
-    @PreAuthorize("hasAuthority('ROLE_user')")
+    @PreAuthorize("hasAnyRole('ROLE_user','ROLE_admin')")
     public ResponseEntity getSkinPossedute()
     {
         try
@@ -52,7 +53,7 @@ public class SkinController
 
             List<Skin> skins = utenteSkinService.getUtenteSkin(utente);
             if (skins.isEmpty())
-                return new ResponseEntity<>(new ResponseMessage("No results!"), HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(new ResponseMessage("No results!"), HttpStatus.OK);
             List<SkinDTO> ret = new LinkedList<>();
             for (Skin skin : skins)
             {
@@ -71,7 +72,7 @@ public class SkinController
     }
 
     @GetMapping("/notowned")
-    @PreAuthorize("hasAuthority('ROLE_user')")
+    @PreAuthorize("hasAnyRole('ROLE_user','ROLE_admin')")
     public ResponseEntity getSkinNonPossedute()
     {
         try
@@ -98,13 +99,13 @@ public class SkinController
             return new ResponseEntity<>(ret, HttpStatus.OK);
         } catch (UserNotFoundException e)
         {
-            throw new RuntimeException(e);
+            return new ResponseEntity<>(new ResponseMessage("Uer not found!"), HttpStatus.NOT_FOUND);
         }
     }
 
     @PostMapping("/acquire")
-    @PreAuthorize("hasAuthority('ROLE_user')")
-    public ResponseEntity acquireSkin(@Valid @RequestBody String nome)
+    @PreAuthorize("hasAnyRole('ROLE_user','ROLE_admin')")
+    public ResponseEntity acquireSkin(@Valid @RequestParam("nome") String nome)
     {
         try
         {
@@ -114,14 +115,25 @@ public class SkinController
             Utente utente = utenteService.trovaUtente(cJWT.getEmail());
             Skin skin = skinService.skinPerNome(nome);
 
+            if (utente == null)
+                return new ResponseEntity<>(new ResponseMessage("User not found"), HttpStatus.NOT_FOUND);
+            if (skin == null)
+                return new ResponseEntity<>(new ResponseMessage("Skin not found"), HttpStatus.NOT_FOUND);
+
             UtenteSkin utenteSkin = new UtenteSkin();
             utenteSkin.setUtente(utente);
             utenteSkin.setSkin(skin);
 
-            utenteSkinService.aggiungiSkinUtente(utenteSkin);
-            utenteService.agiornaCrediti(utenteSkin.getUtente(), -utenteSkin.getSkin().getCrediti());
+            UtenteSkinKey utenteSkinKey = new UtenteSkinKey();
+            utenteSkinKey.setSkin(skin.getId());
+            utenteSkinKey.setUtente(utente.getId_utente());
 
-            return new ResponseEntity<>(new ResponseMessage("Skin acquired!"), HttpStatus.CREATED);
+            utenteSkin.setId(utenteSkinKey);
+
+            utenteService.agiornaCrediti(utente, -skin.getCrediti());
+            utenteSkinService.aggiungiSkinUtente(utenteSkin);
+
+            return new ResponseEntity<>(new ResponseMessage("Skin acquired!"), HttpStatus.OK);
         }catch (SkinAlreadyOwnedException e)
         {
             return new ResponseEntity<>(new ResponseMessage("You already own this skin!"), HttpStatus.BAD_REQUEST);

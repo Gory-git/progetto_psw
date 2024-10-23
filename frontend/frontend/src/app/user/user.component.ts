@@ -11,14 +11,24 @@ import { Utente } from '../modelli/Utente';
 })
 export class UserComponent {
    
-  utente!: Utente;
+  utente: Utente = {
+    id: 0,
+    nome: 'a',
+    cognome: 'a',
+    email: 'a',
+    crediti: 0
+  }
   text: String = '';
   constructor(private utenteService: UtenteService) { }
 
+  ngOnInit() {
+    this.getInfo()
+  }
+
   getInfo() {
-    this.utenteService.getInfo().subscribe(response=> {
+    this.utenteService.getInfo().subscribe((response: Utente)=> {
       this.utente = response
-    }, error => {
+    }, (error) => {
       this.text = error.message
     })
   }

@@ -45,12 +45,18 @@ public class UtenteMiglioramentoService
 
     @Lock(LockModeType.OPTIMISTIC)
     @Transactional(readOnly = false)
-    public void updateQuantitaMiglioramentoAdUtente(Utente utente, Miglioramento miglioramento, int quantita) throws IllegalArgumentException, MiglioramentoMaxLevelReachedException
+    public void updateQuantitaMiglioramentoAdUtente(UtenteMiglioramento utenteMiglioramento, int quantita) throws IllegalArgumentException, MiglioramentoMaxLevelReachedException
     {
-        if (utente == null || miglioramento == null || quantita < 0 || !utenteMiglioramentoRepository.findMiglioramentiByUtente(utente).contains(miglioramento))
+        if (utenteMiglioramento == null || quantita < 0 || !utenteMiglioramentoRepository.findAll().contains(utenteMiglioramento))
             throw new IllegalArgumentException();
-        if (utenteMiglioramentoRepository.quantitaMiglioramentoPerUtente(utente, miglioramento) + quantita > miglioramento.getQuantita_massima())
+        if (utenteMiglioramentoRepository.quantitaMiglioramentoPerUtente(utenteMiglioramento.getUtente(), utenteMiglioramento.getMiglioramento()) + quantita > utenteMiglioramento.getMiglioramento().getQuantita_massima())
             throw new MiglioramentoMaxLevelReachedException();
-        utenteMiglioramentoRepository.updateQuantita(quantita, utente, miglioramento);
+        utenteMiglioramentoRepository.updateQuantita(quantita, utenteMiglioramento);
+    }
+
+    @Transactional(readOnly = true)
+    public UtenteMiglioramento miglioramentoUtente(Utente utente, Miglioramento miglioramento)
+    {
+        return utenteMiglioramentoRepository.findUtenteMiglioramentoByUtenteAndMiglioramento(utente, miglioramento);
     }
 }

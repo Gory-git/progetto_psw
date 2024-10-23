@@ -4,8 +4,7 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.sql.Date;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -19,7 +18,7 @@ public class Partita
     private long id;
 
     @ManyToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "utente", nullable = false, unique = true)
+    @JoinColumn(name = "utente", nullable = false)
     private Utente utente;
 
     @Column(name = "crediti_ottenuti", nullable = false)

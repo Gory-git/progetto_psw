@@ -14,15 +14,17 @@ const httpOptions = {
 })
 
 export class PartitaService {
-    private url: string = 'http://localhost:8080/partita/'
+    private url: string = 'http://localhost:8080/game/'
 
     constructor(private oauthService: OAuthService,private httpClient: HttpClient) {}
 
     salva(params: HttpParams): Observable<any> {
-        return this.httpClient.post<any>(this.url + 'save', {
-            params: params,    
-            headers: { 
-              'Authorization': `Bearer ${this.oauthService.getAccessToken()}`,
-            }})
+        return this.httpClient.post<any>(this.url+'save', null, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${this.oauthService.getAccessToken()}`,
+            },
+            params: params
+        })
     }
 }

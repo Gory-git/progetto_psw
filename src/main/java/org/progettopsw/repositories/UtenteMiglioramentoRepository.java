@@ -18,6 +18,8 @@ public interface UtenteMiglioramentoRepository extends JpaRepository<UtenteMigli
     @Query("SELECT UM.quantita FROM UtenteMiglioramento UM WHERE UM.utente = ?1 AND UM.miglioramento = ?2")
     public int quantitaMiglioramentoPerUtente(Utente utente, Miglioramento miglioramento);
 
-    @Query("UPDATE UtenteMiglioramento UM SET UM.quantita = ?1 WHERE UM.utente = ?2 AND UM.miglioramento = ?3")
-    public void updateQuantita(int quantita, Utente utente, Miglioramento miglioramento);
+    @Query("UPDATE UtenteMiglioramento UM SET UM.quantita = ?1 WHERE UM = ?2")
+    public void updateQuantita(int quantita, UtenteMiglioramento utenteMiglioramento);
+
+    public UtenteMiglioramento findUtenteMiglioramentoByUtenteAndMiglioramento(Utente utente, Miglioramento miglioramento);
 }

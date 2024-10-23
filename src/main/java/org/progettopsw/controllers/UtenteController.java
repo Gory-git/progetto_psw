@@ -8,12 +8,10 @@ import org.progettopsw.support.messages.ResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.progettopsw.services.UtenteService;
 import org.progettopsw.support.exceptions.UserAlreadyExistsException;
 import org.progettopsw.support.exceptions.UserNotFoundException;
@@ -23,43 +21,55 @@ import java.util.ArrayList;
 
 @RestController
 @RequestMapping(value = "/user")
+@CrossOrigin(
+        origins = "http://localhost:4200",
+        allowedHeaders = "*",
+        methods = { RequestMethod.GET, RequestMethod.POST }
+)
 public class UtenteController
 {
     @Autowired
     private UtenteService utenteService;
 
     @PostMapping("/register")
+    @PreAuthorize("hasAnyRole('ROLE_user','ROLE_admin')")
     public ResponseEntity registerUtente()
     {
+        CustomJWT cJWT = (CustomJWT) SecurityContextHolder.getContext().getAuthentication();
         try
         {
-            CustomJWT cJWT = (CustomJWT) SecurityContextHolder.getContext().getAuthentication();
-            if (cJWT == null)
-                return new ResponseEntity<>(new ResponseMessage("JWT error!"), HttpStatus.UNAUTHORIZED);
-            Utente utente = new Utente();
-            utente.setEmail(cJWT.getEmail());
-            utente.setNome(cJWT.getNome());
-            utente.setCognome(cJWT.getCognome());
-            utente.setCrediti(0);
-            utente.setMiglioramenti(new ArrayList<>());
-            utente.setSkin(new ArrayList<>());
-            utenteService.registraUtente(utente);
+            if (utenteService.trovaUtente(cJWT.getEmail()) != null)
+                return new ResponseEntity<>(new ResponseMessage("Utente already exists"), HttpStatus.OK);
 
-            return new ResponseEntity<>(HttpStatus.CREATED);
-        } catch (UserAlreadyExistsException e)
+        }catch (UserNotFoundException e)
         {
-            return new ResponseEntity<>(new ResponseMessage("User already exists"), HttpStatus.BAD_REQUEST);
+            try
+            {
+                Utente utente = new Utente();
+                utente.setEmail(cJWT.getEmail());
+                utente.setNome(cJWT.getNome());
+                utente.setCognome(cJWT.getCognome());
+                utente.setCrediti(0);
+                //utente.setMiglioramenti(new ArrayList<>());
+                //utente.setSkin(new ArrayList<>());
+                utenteService.registraUtente(utente);
+
+                return new ResponseEntity<>(HttpStatus.OK);
+            } catch (UserAlreadyExistsException ex)
+            {
+                return new ResponseEntity<>(new ResponseMessage("User already exists"), HttpStatus.OK);
+            }
         }
+        return new ResponseEntity<>(new ResponseMessage("Error!"), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @GetMapping("/page")
+    @PreAuthorize("hasAnyRole('ROLE_user','ROLE_admin')")
     public ResponseEntity infoUtente()
     {
         try
         {
             CustomJWT cJWT = (CustomJWT) SecurityContextHolder.getContext().getAuthentication();
-            if (cJWT == null)
-                return new ResponseEntity<>(new ResponseMessage("JWT error!"), HttpStatus.UNAUTHORIZED);
             
             Utente utente = utenteService.trovaUtente(cJWT.getEmail());
 
@@ -72,7 +82,7 @@ public class UtenteController
             ret.setCognome(utente.getCognome());
             ret.setCrediti(utente.getCrediti());
 
-            return new ResponseEntity<>(ret, HttpStatus.FOUND);
+            return new ResponseEntity<>(ret, HttpStatus.OK);
         } catch (UserNotFoundException e)
         {
             return new ResponseEntity<>(new ResponseMessage("User don't exists"), HttpStatus.NOT_FOUND);

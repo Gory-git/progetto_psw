@@ -27,28 +27,32 @@ export class MiglioramentiService {
     }
 
     nome(params: HttpParams): Observable<any> {
-        return this.httpClient.get<any>(this.url, {
-            params: params,    
+        return this.httpClient.get<any>(this.url, {    
             headers: { 
               'Authorization': `Bearer ${this.oauthService.getAccessToken()}`,
-            }})
+            },
+            params: params
+          })
     }
 
     crediti(params: HttpParams): Observable<any> {
-        return this.httpClient.get<any>(this.url, {
-            params: params,    
+        return this.httpClient.get<any>(this.url, {   
             headers: { 
               'Authorization': `Bearer ${this.oauthService.getAccessToken()}`,
-            }})
+            },
+            params: params 
+          })
     }
 
-    acquire(params: HttpParams): Observable<any>{
-        return this.httpClient.post<any>(this.url+'acquire', {
-            params: params,    
-            headers: { 
+    acquire(params: HttpParams): Observable<any> {
+      return this.httpClient.post<any>(this.url+'acquire', null, {
+          headers: {
+              'Content-Type': 'application/json',
               'Authorization': `Bearer ${this.oauthService.getAccessToken()}`,
-            }})
-    }
+          },
+          params: params
+      })
+  }
 
     add() {
 

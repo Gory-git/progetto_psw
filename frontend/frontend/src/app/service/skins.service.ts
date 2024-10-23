@@ -34,11 +34,13 @@ export class SkinsService {
     }
 
     acquire(params: HttpParams): Observable<any> {
-        return this.httpClient.post<any>(this.url + 'acquire', {
-            params: params,    
-            headers: { 
-              'Authorization': `Bearer ${this.oauthService.getAccessToken()}`,
-            }})
+        return this.httpClient.post<any>(this.url+'acquire', null, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${this.oauthService.getAccessToken()}`,
+            },
+            params: params
+        })
     }
 
     add() {

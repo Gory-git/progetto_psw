@@ -13,6 +13,7 @@ import { CommonModule } from '@angular/common';
 })
 export class SkinsComponent {
   text: string= ''
+  nonPosseduteV: boolean = false;
   skins: Skin[] = [];
   constructor(private skinsService: SkinsService) { }
 
@@ -27,6 +28,7 @@ export class SkinsComponent {
       } else {
         this.skins = response
         this.text = 'Possedute'
+        this.nonPosseduteV = false
       }
     })
   }
@@ -39,14 +41,16 @@ export class SkinsComponent {
       } else {
         this.skins = response
         this.text = 'Non Possedute'
+        this.nonPosseduteV = true
       }
     })
   }
 
   acquire(nome: string) {
+    this.text = 'acquisto ' + nome
     const params = new HttpParams().set('nome', nome);
     this.skinsService.acquire(params).subscribe(response=> {
-      this.text = response
+      this.text = response.message
     }, error => {
       this.text = error.message
     })

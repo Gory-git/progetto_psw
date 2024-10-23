@@ -6,6 +6,7 @@ import org.progettopsw.models.Utente;
 import org.progettopsw.models.UtenteMiglioramento;
 import org.progettopsw.support.dto.MiglioramentoDTO;
 import org.progettopsw.support.dto.SkinDTO;
+import org.progettopsw.support.embeddables.UtenteMiglioramentoKey;
 import org.progettopsw.support.jwt.CustomJWT;
 import org.progettopsw.support.jwt.CustomJWTConverter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,6 @@ import org.progettopsw.support.messages.ResponseMessage;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 @RestController
@@ -47,7 +47,7 @@ public class MiglioramentoController
     private UtenteService utenteService;
 
     @GetMapping("/all")
-    @PreAuthorize("hasAuthority('ROLE_user')")
+    @PreAuthorize("hasAnyRole('ROLE_user','ROLE_admin')")
     @Transactional
     public ResponseEntity getMiglioramentiDisponibili()
     {
@@ -69,7 +69,7 @@ public class MiglioramentoController
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    @PreAuthorize("hasAuthority('ROLE_user')")
+    @PreAuthorize("hasAnyRole('ROLE_user','ROLE_admin')")
     public ResponseEntity getMiglioramentoByNome(@RequestParam(value="nome") String nome)
     {
         try
@@ -91,7 +91,7 @@ public class MiglioramentoController
     }
 
     @GetMapping("/search/{crediti}")
-    @PreAuthorize("hasAuthority('ROLE_user')")
+    @PreAuthorize("hasAnyRole('ROLE_user','ROLE_admin')")
     public ResponseEntity getMiglioramentoByCrediti(@PathVariable("crediti") int crediti)
     {
         try
@@ -115,13 +115,13 @@ public class MiglioramentoController
             return new ResponseEntity<>(ret, HttpStatus.OK);
         }catch(Exception e)
         {
-            return new ResponseEntity<>(new ResponseMessage("Errore!"), HttpStatus.OK);
+            return new ResponseEntity<>(new ResponseMessage("Errore!"), HttpStatus.BAD_REQUEST);
         }
     }
 
     @PostMapping("/acquire")
-    @PreAuthorize("hasAuthority('ROLE_user')")
-    public ResponseEntity acquireMiglioramento(@Valid @RequestBody String nome)
+    @PreAuthorize("hasAnyRole('ROLE_user','ROLE_admin')")
+    public ResponseEntity acquireMiglioramento(@Valid @RequestParam("nome") String nome)
     {
         try
         {
@@ -132,6 +132,10 @@ public class MiglioramentoController
             Miglioramento miglioramento = miglioramentoService.miglioramentoPerNome(nome);
 
             UtenteMiglioramento utenteMiglioramento = new UtenteMiglioramento();
+            UtenteMiglioramentoKey utenteMiglioramentoKey = new UtenteMiglioramentoKey();
+            utenteMiglioramentoKey.setMiglioramento(miglioramento.getId());
+            utenteMiglioramentoKey.setUtente(utente.getId_utente());
+            utenteMiglioramento.setId(utenteMiglioramentoKey);
             utenteMiglioramento.setUtente(utente);
             utenteMiglioramento.setMiglioramento(miglioramento);
             utenteMiglioramento.setQuantita(1);
@@ -139,10 +143,10 @@ public class MiglioramentoController
             if (!utenteMiglioramentoService.miglioramentiPerUtente(utenteMiglioramento.getUtente()).contains(utenteMiglioramento.getMiglioramento()))
                 utenteMiglioramentoService.aggiungiMiglioramentoAdUtente(utenteMiglioramento);
             else
-                utenteMiglioramentoService.updateQuantitaMiglioramentoAdUtente(utenteMiglioramento.getUtente(), utenteMiglioramento.getMiglioramento(), utenteMiglioramento.getQuantita());
+                utenteMiglioramentoService.updateQuantitaMiglioramentoAdUtente(utenteMiglioramento, utenteMiglioramento.getQuantita());
             utenteService.agiornaCrediti(utenteMiglioramento.getUtente(), -utenteMiglioramento.getMiglioramento().getCrediti());
 
-            return new ResponseEntity<>(new ResponseMessage("Miglioramento acquired!"), HttpStatus.CREATED);
+            return new ResponseEntity<>(new ResponseMessage("Miglioramento acquired!"), HttpStatus.OK);
         } catch (UserNotFoundException e)
         {
             return new ResponseEntity<>(new ResponseMessage("User doesn't exists"), HttpStatus.BAD_REQUEST);
