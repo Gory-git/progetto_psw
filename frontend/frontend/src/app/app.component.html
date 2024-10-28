@@ -1,19 +1,24 @@
 <div>
-  <h1>Progetto Giochino</h1>
-</div>
-<div>
   <h3>Hello, {{userName}}, welcome to this Giochino!</h3>
 </div>
-<div>
-  <button (click)="logout()">LOGOUT</button>
+<div class="dropdown">
+  <button class="dropbtn">Menu</button>
+  <div class="dropdown-content">
+    <div>
+      <button routerLink="/home" routerLinkActive="active" ariaCurrentWhenActive="page">Home</button>
+    </div>
+    <div>
+      <button routerLink="/user" routerLinkActive="active" ariaCurrentWhenActive="page">User</button>
+    </div>
+    <div>
+      <button routerLink="/miglioramenti" routerLinkActive="active" ariaCurrentWhenActive="page">Miglioramenti</button>
+    </div>
+    <div>
+      <button routerLink="/skin" routerLinkActive="active" ariaCurrentWhenActive="page">Skin</button>
+    </div>
+    <div>
+      <button (click)="logout()">Logout</button>
+    </div>
+  </div>
 </div>
-
-<nav>
-  <ul>
-    <li><a routerLink="/" routerLinkActive="active" ariaCurrentWhenActive="page">Home</a></li>
-    <li><a routerLink="/user" routerLinkActive="active" ariaCurrentWhenActive="page">User</a></li>
-    <li><a routerLink="/miglioramenti" routerLinkActive="active" ariaCurrentWhenActive="page">Miglioramenti</a></li>
-    <li><a routerLink="/skin" routerLinkActive="active" ariaCurrentWhenActive="page">Skin</a></li>
-  </ul>
-</nav>
 <router-outlet></router-outlet>

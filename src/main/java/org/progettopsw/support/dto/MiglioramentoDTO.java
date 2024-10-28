@@ -15,4 +15,5 @@ public class MiglioramentoDTO
     private String descrizione;
     private String tipologia;
     private int quantitaMassima;
+    private int quantitaPosseduta;
 }

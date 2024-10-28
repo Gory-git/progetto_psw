@@ -43,7 +43,13 @@ export class SkinsService {
         })
     }
 
-    add() {
-
-    } 
+    add(params: any) {
+        return this.httpClient.post<any>(this.url+'save', null, {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${this.oauthService.getAccessToken()}`,
+            },
+            params : params
+          })
+        }
 }

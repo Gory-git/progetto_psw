@@ -14,4 +14,5 @@ public class UtenteDTO
     private String cognome;
     private String email;
     private int crediti;
+    private boolean ruolo;
 }

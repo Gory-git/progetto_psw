@@ -28,7 +28,7 @@ public class UtenteService
 
     @Lock(LockModeType.OPTIMISTIC)
     @Transactional(readOnly = false)
-    public void agiornaCrediti(Utente utente, int crediti) throws UserNotFoundException, NotEnoughCreditsException
+    public void aggiungiCrediti(Utente utente, int crediti) throws UserNotFoundException, NotEnoughCreditsException
     {
         if (utente == null || !utenteRepository.existsById(utente.getId_utente()))
             throw new UserNotFoundException();

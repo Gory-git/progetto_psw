@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -50,8 +51,6 @@ public class UtenteController
                 utente.setNome(cJWT.getNome());
                 utente.setCognome(cJWT.getCognome());
                 utente.setCrediti(0);
-                //utente.setMiglioramenti(new ArrayList<>());
-                //utente.setSkin(new ArrayList<>());
                 utenteService.registraUtente(utente);
 
                 return new ResponseEntity<>(HttpStatus.OK);
@@ -81,6 +80,7 @@ public class UtenteController
             ret.setNome(utente.getNome());
             ret.setCognome(utente.getCognome());
             ret.setCrediti(utente.getCrediti());
+            ret.setRuolo(cJWT.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_admin")));
 
             return new ResponseEntity<>(ret, HttpStatus.OK);
         } catch (UserNotFoundException e)

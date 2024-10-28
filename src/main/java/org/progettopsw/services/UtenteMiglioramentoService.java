@@ -47,11 +47,11 @@ public class UtenteMiglioramentoService
     @Transactional(readOnly = false)
     public void updateQuantitaMiglioramentoAdUtente(UtenteMiglioramento utenteMiglioramento, int quantita) throws IllegalArgumentException, MiglioramentoMaxLevelReachedException
     {
-        if (utenteMiglioramento == null || quantita < 0 || !utenteMiglioramentoRepository.findAll().contains(utenteMiglioramento))
+        if (utenteMiglioramento == null || !utenteMiglioramentoRepository.findAll().contains(utenteMiglioramento) || (utenteMiglioramentoRepository.quantitaMiglioramentoPerUtente(utenteMiglioramento.getUtente(), utenteMiglioramento.getMiglioramento()) + quantita) < 0)
             throw new IllegalArgumentException();
-        if (utenteMiglioramentoRepository.quantitaMiglioramentoPerUtente(utenteMiglioramento.getUtente(), utenteMiglioramento.getMiglioramento()) + quantita > utenteMiglioramento.getMiglioramento().getQuantita_massima())
+        if ((utenteMiglioramentoRepository.quantitaMiglioramentoPerUtente(utenteMiglioramento.getUtente(), utenteMiglioramento.getMiglioramento()) + quantita) > utenteMiglioramento.getMiglioramento().getQuantita_massima())
             throw new MiglioramentoMaxLevelReachedException();
-        utenteMiglioramentoRepository.updateQuantita(quantita, utenteMiglioramento);
+        utenteMiglioramentoRepository.updateQuantita((utenteMiglioramentoRepository.quantitaMiglioramentoPerUtente(utenteMiglioramento.getUtente(), utenteMiglioramento.getMiglioramento()) + quantita), utenteMiglioramento);
     }
 
     @Transactional(readOnly = true)

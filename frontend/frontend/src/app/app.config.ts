@@ -4,6 +4,7 @@ import { routes } from './app.routes';
 import { AuthConfig, OAuthService, provideOAuthClient } from 'angular-oauth2-oidc';
 import { provideHttpClient } from '@angular/common/http';
 import {provideClientHydration} from "@angular/platform-browser";
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 export const authCodeFlowConfig: AuthConfig = {
   issuer: 'http://localhost:8180/realms/my-test-realm',
@@ -44,6 +45,6 @@ export const appConfig: ApplicationConfig = {
       deps: [
         OAuthService
       ]
-    }
+    }, provideAnimationsAsync()
   ]
 };

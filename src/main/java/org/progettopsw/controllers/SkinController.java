@@ -7,13 +7,11 @@ import org.progettopsw.support.dto.SkinDTO;
 import org.progettopsw.support.embeddables.UtenteSkinKey;
 import org.progettopsw.support.exceptions.*;
 import org.progettopsw.support.jwt.CustomJWT;
-import org.progettopsw.support.jwt.CustomJWTConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.progettopsw.services.SkinService;
 import org.progettopsw.services.UtenteService;
@@ -130,7 +128,7 @@ public class SkinController
 
             utenteSkin.setId(utenteSkinKey);
 
-            utenteService.agiornaCrediti(utente, -skin.getCrediti());
+            utenteService.aggiungiCrediti(utente, -skin.getCrediti());
             utenteSkinService.aggiungiSkinUtente(utenteSkin);
 
             return new ResponseEntity<>(new ResponseMessage("Skin acquired!"), HttpStatus.OK);
@@ -151,14 +149,23 @@ public class SkinController
 
     @PostMapping("/save")
     @PreAuthorize("hasAuthority('ROLE_admin')")
-    public ResponseEntity salvaSkin(@Valid @RequestBody Skin skin)
+    public ResponseEntity salvaSkin(@Valid @RequestParam("nome") String nome, @Valid @RequestParam("crediti") int crediti)
     {
         try
         {
+            if (nome.isEmpty())
+                return new ResponseEntity<>(new ResponseMessage("Nome invalido"), HttpStatus.BAD_REQUEST);
+            if (crediti <= 0)
+                return new ResponseEntity<>(new ResponseMessage("Inserire un valore di crediti maggiore di 0"), HttpStatus.BAD_REQUEST);
+
+            Skin skin = new Skin();
+            skin.setCrediti(crediti);
+            skin.setNome(nome);
             skinService.nuovaSkin(skin);
 
             return new ResponseEntity<>(new ResponseMessage("Skin added!"), HttpStatus.CREATED);
-        } catch (SkinAlreadyExistsException e) {
+        } catch (SkinAlreadyExistsException e)
+        {
             return new ResponseEntity<>(new ResponseMessage("Skin already exists"), HttpStatus.BAD_REQUEST);
         }
     }

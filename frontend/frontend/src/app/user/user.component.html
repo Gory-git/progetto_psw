@@ -1,6 +1,14 @@
 <div>
-    <h2>{{ utente.nome }}</h2>
-    <p><strong>Cognome:</strong> {{ utente.cognome }}</p>
-    <p><strong>Email:</strong> {{ utente.email }}</p>        
-    <p><strong>Crediti:</strong> {{ utente.crediti }}</p>
+    <h2>{{ utente.nome }} page!</h2>
+    <div>
+        <p><strong>Nome:</strong> {{ utente.nome }}</p>
+        <p><strong>Cognome:</strong> {{ utente.cognome }}</p>
+        <p><strong>Email:</strong> {{ utente.email }}</p> 
+        <p><strong>Crediti:</strong> {{ utente.crediti }}</p>
+    </div>
+    <div>
+        <button *ngIf="utente.ruolo" (click)="openFormMiglioramento()">Aggiungi Miglioramento</button>
+        <button *ngIf="utente.ruolo" (click)="openFormSkin()">Aggiungi Skin</button>
+    </div>
 </div>
+

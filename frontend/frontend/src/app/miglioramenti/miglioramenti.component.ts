@@ -1,14 +1,17 @@
 import { Component } from '@angular/core';
-import { OAuthService } from 'angular-oauth2-oidc';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Miglioramento } from '../modelli/Miglioramento';
 import { CommonModule} from '@angular/common';
 import { MiglioramentiService } from '../service/miglioramenti.service';
+import { MatDialog } from '@angular/material/dialog';
+import { ErrorDialogComponent } from '../error-dialog/error-dialog.component';
+import { UtenteService } from '../service/utente.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-miglioramenti',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './miglioramenti.component.html',
   styleUrl: './miglioramenti.component.css'
 })
@@ -16,13 +19,15 @@ import { MiglioramentiService } from '../service/miglioramenti.service';
 export class MiglioramentiComponent {
 
   text: string= ''
+  searchTerm: string= ''
   miglioramenti: Miglioramento[] = [];
-  constructor(private miglioramentiService: MiglioramentiService) { }
+  constructor(private dialog: MatDialog, private utenteService: UtenteService,  private miglioramentiService: MiglioramentiService) { }
 
   ngOnInit() {
+    this.utenteService.salva().subscribe(error => {
+      //this.text = error.message
+    })
     this.tutti()
-    //this.nome('a')
-    //this.crediti(1)
   }
 
   tutti() {
@@ -37,15 +42,25 @@ export class MiglioramentiComponent {
     });
   }
 
+  cerca() {
+    this.nome(this.searchTerm)
+  }
+
+  onEnter(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      this.cerca();
+    }
+  }
+
   nome(nome: string) {
     const params = new HttpParams().set('nome', nome);
-    this.miglioramentiService.nome(params).subscribe((response)=> {
-      if (!Array.isArray(response)) {
-        this.text = 'No results!'
+    this.miglioramentiService.nome(params).subscribe(response => {
+      if (response.message == 'No results!') {
         this.miglioramenti = []
+        this.text = 'No results!'
       } else {
-        this.miglioramenti = response
         this.text = ''
+        this.miglioramenti = [response]
       }
     });
   }
@@ -67,9 +82,19 @@ export class MiglioramentiComponent {
     const params = new HttpParams().set('nome', nome);
     this.miglioramentiService.acquire(params).subscribe(
       response=> {
-      this.text = response
+        this.openDialog( response.message )
     }, error => {
-      this.text = error.message
+      this.openDialog( error.error.message )
+    });
+  }
+
+  openDialog(message: String) {
+    const dialogRef = this.dialog.open(ErrorDialogComponent, {
+      data: { message: message }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('Il dialogo è stato chiuso');
     });
   }
 

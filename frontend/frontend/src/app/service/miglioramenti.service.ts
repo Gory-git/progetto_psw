@@ -14,12 +14,12 @@ const httpOptions = {
     providedIn: 'root'
 })
 export class MiglioramentiService {
-    private url = 'http://localhost:8080/miglioramenti/'
+    private url = 'http://localhost:8080/miglioramenti'
 
     constructor(private oauthService: OAuthService,private httpClient: HttpClient) {}
     
     all(): Observable<any> {
-        return this.httpClient.get<any>(this.url+'all', {
+        return this.httpClient.get<any>(this.url+'/all', {
             headers: { 
               'Authorization': `Bearer ${this.oauthService.getAccessToken()}`
             }
@@ -36,7 +36,7 @@ export class MiglioramentiService {
     }
 
     crediti(params: HttpParams): Observable<any> {
-        return this.httpClient.get<any>(this.url, {   
+        return this.httpClient.get<any>(this.url + params.get('crediti'), {   
             headers: { 
               'Authorization': `Bearer ${this.oauthService.getAccessToken()}`,
             },
@@ -45,16 +45,22 @@ export class MiglioramentiService {
     }
 
     acquire(params: HttpParams): Observable<any> {
-      return this.httpClient.post<any>(this.url+'acquire', null, {
+      return this.httpClient.post<any>(this.url+'/acquire', null, {
           headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${this.oauthService.getAccessToken()}`,
           },
           params: params
       })
-  }
-
-    add() {
-
     }
+
+add(params: any) {
+  return this.httpClient.post<any>(this.url+'/save', null, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.oauthService.getAccessToken()}`,
+      },
+      params : params
+    })
+  }
 }

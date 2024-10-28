@@ -16,14 +16,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.progettopsw.services.UtenteMiglioramentoService;
 import org.progettopsw.services.UtenteService;
 
 import javax.validation.Valid;
-import java.sql.Date;
 
 @RestController
 @RequestMapping(value = "/game")
@@ -47,25 +45,26 @@ public class GameController
                 return new ResponseEntity<>(new ResponseMessage("JWT error!"), HttpStatus.OK);
             Utente utente = utenteService.trovaUtente(cJWT.getEmail());
             for (Miglioramento miglioramento : utenteMiglioramentoService.miglioramentiPerUtente(utente))
-                if (miglioramento != null && utenteMiglioramentoService.quantitaPerUtente(utente, miglioramento) > 0)
+                if (utenteMiglioramentoService.quantitaPerUtente(utente, miglioramento) > 0)
                 {
-                    utenteMiglioramentoService.updateQuantitaMiglioramentoAdUtente(utenteMiglioramentoService.miglioramentoUtente(utente, miglioramento) ,(utenteMiglioramentoService.quantitaPerUtente(utente, miglioramento) - 1));
+                    utenteMiglioramentoService.updateQuantitaMiglioramentoAdUtente(utenteMiglioramentoService.miglioramentoUtente(utente, miglioramento) ,- 1);
                     switch (miglioramento.getTipologia())
                     {
                         case "a" -> creditiAggiunti += (punti / 100) * 5;
-                        case "b" -> creditiAggiunti += (punti / 100) * 10;
-                        case "c" -> creditiAggiunti += (punti / 100) * 15;
-                        case "d" -> creditiAggiunti += (punti / 100) * 20;
-                        case "e" -> creditiAggiunti += (punti / 100) * 25;
+                        case "b" -> creditiAggiunti += (punti / 100) * 6;
+                        case "c" -> creditiAggiunti += (punti / 100) * 7;
+                        case "d" -> creditiAggiunti += (punti / 100) * 8;
+                        case "e" -> creditiAggiunti += (punti / 100) * 9;
                     }
                 }
-            utenteService.agiornaCrediti(utente, (utente.getCrediti() + creditiAggiunti));
             Partita partita = new Partita();
-            partita.setData_partita(Date.valueOf(String.valueOf(new java.util.Date())));
+            partita.setData_partita(new java.util.Date());
             partita.setEsito(punti == 0 ? "sconfitta" : "vittoria");
             partita.setCrediti_ottenuti(creditiAggiunti);
             partita.setUtente(utente);
             partitaService.salvaPartita(partita);
+
+            utenteService.aggiungiCrediti(utente, creditiAggiunti);
 
             return new ResponseEntity<>(new ResponseMessage("Partita saved"), HttpStatus.OK);
         } catch (UserNotFoundException e)

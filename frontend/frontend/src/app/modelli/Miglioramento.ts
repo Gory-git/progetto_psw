@@ -3,6 +3,7 @@ export interface Miglioramento {
     crediti: number
     descrizione: string
     nome: string
-    quantita_massima: number
+    quantitaMassima: number
+    quantitaPosseduta: number
     tipologia: string
 }

@@ -1,0 +1,28 @@
+<div>
+    <h1 mat-dialog-title>Crea Miglioramento</h1>
+    <div mat-dialog-content>
+        <form (ngSubmit)="onSubmit()">
+            <mat-form-field>
+                <mat-label>Nome</mat-label>
+                <input matInput [(ngModel)]="nome" name="nome" required>
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>Costo</mat-label>
+                <input matInput type="number" [(ngModel)]="crediti" name="crediti" required>
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>Quantità Massima</mat-label>
+                <input matInput type="number" [(ngModel)]="quantitaMassima" name="quantitaMassima" required>
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>Descrizione</mat-label>
+                <input matInput [(ngModel)]="descrizione" name="descrizione" required>
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>Tipologia</mat-label>
+                <input matInput [(ngModel)]="tipologia" name="tipologia" required>
+            </mat-form-field>
+            <button mat-button type="submit">Invia</button>
+        </form>
+    </div>
+</div>
