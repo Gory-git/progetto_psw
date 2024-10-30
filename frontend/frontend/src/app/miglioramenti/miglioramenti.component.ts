@@ -53,16 +53,20 @@ export class MiglioramentiComponent {
   }
 
   nome(nome: string) {
-    const params = new HttpParams().set('nome', nome);
-    this.miglioramentiService.nome(params).subscribe(response => {
-      if (response.message == 'No results!') {
-        this.miglioramenti = []
-        this.text = 'No results!'
-      } else {
-        this.text = ''
-        this.miglioramenti = [response]
-      }
-    });
+    if (nome === ''){
+      this.tutti()
+    } else {
+      const params = new HttpParams().set('nome', nome);
+      this.miglioramentiService.nome(params).subscribe(response => {
+        if (response.message == 'No results!') {
+          this.miglioramenti = []
+          this.text = 'No results!'
+        } else {
+          this.text = ''
+          this.miglioramenti = response
+        }
+      });
+    }
   }
 
   crediti(crediti: number) {

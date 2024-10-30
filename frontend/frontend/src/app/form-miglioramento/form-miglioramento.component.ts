@@ -6,11 +6,12 @@ import { FormsModule } from '@angular/forms';
 import { MatInput } from '@angular/material/input';
 import { MiglioramentiService } from '../service/miglioramenti.service';
 import { ErrorDialogComponent } from '../error-dialog/error-dialog.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-form-miglioramento',
   standalone: true,
-  imports: [MatFormField, MatLabel, MatInput, FormsModule],
+  imports: [MatFormField, MatLabel, MatInput, FormsModule, CommonModule],
   templateUrl: './form-miglioramento.component.html',
   styleUrl: './form-miglioramento.component.css'
 })
@@ -21,6 +22,7 @@ export class FormMiglioramentoComponent {
   nome: string = ''
   quantitaMassima: number = 0
   tipologia: string = ''
+  tipologie: string[] = ['a', 'b', 'c', 'd', 'e']
 
   constructor(private dialog: MatDialog, private dialogRef: MatDialogRef<FormMiglioramentoComponent>, private miglioramentiService: MiglioramentiService) {}
 

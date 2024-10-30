@@ -1,26 +1,16 @@
 package org.progettopsw.controllers;
 
-import org.progettopsw.models.Skin;
-import org.progettopsw.models.Utente;
-import org.progettopsw.models.UtenteSkin;
-import org.progettopsw.support.dto.SkinDTO;
-import org.progettopsw.support.embeddables.UtenteSkinKey;
 import org.progettopsw.support.exceptions.*;
-import org.progettopsw.support.jwt.CustomJWT;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.progettopsw.services.SkinService;
-import org.progettopsw.services.UtenteService;
 import org.progettopsw.services.UtenteSkinService;
 import org.progettopsw.support.messages.ResponseMessage;
 
 import javax.validation.Valid;
-import java.util.LinkedList;
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/skins")
@@ -35,37 +25,19 @@ public class SkinController
     private SkinService skinService;
     @Autowired
     private UtenteSkinService utenteSkinService;
-    @Autowired
-    private UtenteService utenteService;
-
     @GetMapping("/owned")
     @PreAuthorize("hasAnyRole('ROLE_user','ROLE_admin')")
     public ResponseEntity getSkinPossedute()
     {
         try
         {
-            CustomJWT cJWT = (CustomJWT) SecurityContextHolder.getContext().getAuthentication();
-            if (cJWT == null)
-                return new ResponseEntity<>(new ResponseMessage("JWT error!"), HttpStatus.UNAUTHORIZED);
-            Utente utente = utenteService.trovaUtente(cJWT.getEmail());
-
-            List<Skin> skins = utenteSkinService.getUtenteSkin(utente);
-            if (skins.isEmpty())
-                return new ResponseEntity<>(new ResponseMessage("No results!"), HttpStatus.OK);
-            List<SkinDTO> ret = new LinkedList<>();
-            for (Skin skin : skins)
-            {
-                SkinDTO skinDTO = new SkinDTO();
-                skinDTO.setId(skin.getId());
-                skinDTO.setNome(skin.getNome());
-                skinDTO.setCrediti(skin.getCrediti());
-                ret.add(skinDTO);
-            }
-
-            return new ResponseEntity<>(ret, HttpStatus.OK);
+            return new ResponseEntity<>(utenteSkinService.getUtenteSkin(), HttpStatus.OK);
         } catch (UserNotFoundException e)
         {
             return new ResponseEntity<>(new ResponseMessage("Uer not found!"), HttpStatus.NOT_FOUND);
+        } catch (NoSkinsException e)
+        {
+            return new ResponseEntity<>(new ResponseMessage("No results!"), HttpStatus.OK);
         }
     }
 
@@ -75,29 +47,13 @@ public class SkinController
     {
         try
         {
-            CustomJWT cJWT = (CustomJWT) SecurityContextHolder.getContext().getAuthentication();
-            if (cJWT == null)
-                return new ResponseEntity<>(new ResponseMessage("JWT error!"), HttpStatus.UNAUTHORIZED);
-            Utente utente = utenteService.trovaUtente(cJWT.getEmail());
-
-            List<Skin> possedute = utenteSkinService.getUtenteSkin(utente);
-            List<Skin> tutte = skinService.getAll();
-            List<SkinDTO> ret = new LinkedList<>();
-            for (Skin skin : tutte)
-                if (!possedute.contains(skin))
-                {
-                    SkinDTO skinDTO = new SkinDTO();
-                    skinDTO.setId(skin.getId());
-                    skinDTO.setNome(skin.getNome());
-                    skinDTO.setCrediti(skin.getCrediti());
-                    ret.add(skinDTO);
-                }
-            if (ret.isEmpty())
-                return new ResponseEntity<>(new ResponseMessage("No results!"), HttpStatus.OK);
-            return new ResponseEntity<>(ret, HttpStatus.OK);
+            return new ResponseEntity<>(utenteSkinService.getSkinNonPossedute(), HttpStatus.OK);
         } catch (UserNotFoundException e)
         {
             return new ResponseEntity<>(new ResponseMessage("Uer not found!"), HttpStatus.NOT_FOUND);
+        } catch (NoSkinsException e)
+        {
+            return new ResponseEntity<>(new ResponseMessage("No results!"), HttpStatus.OK);
         }
     }
 
@@ -107,30 +63,7 @@ public class SkinController
     {
         try
         {
-            CustomJWT cJWT = (CustomJWT) SecurityContextHolder.getContext().getAuthentication();
-            if (cJWT == null)
-                return new ResponseEntity<>(new ResponseMessage("JWT error!"), HttpStatus.UNAUTHORIZED);
-            Utente utente = utenteService.trovaUtente(cJWT.getEmail());
-            Skin skin = skinService.skinPerNome(nome);
-
-            if (utente == null)
-                return new ResponseEntity<>(new ResponseMessage("User not found"), HttpStatus.NOT_FOUND);
-            if (skin == null)
-                return new ResponseEntity<>(new ResponseMessage("Skin not found"), HttpStatus.NOT_FOUND);
-
-            UtenteSkin utenteSkin = new UtenteSkin();
-            utenteSkin.setUtente(utente);
-            utenteSkin.setSkin(skin);
-
-            UtenteSkinKey utenteSkinKey = new UtenteSkinKey();
-            utenteSkinKey.setSkin(skin.getId());
-            utenteSkinKey.setUtente(utente.getId_utente());
-
-            utenteSkin.setId(utenteSkinKey);
-
-            utenteService.aggiungiCrediti(utente, -skin.getCrediti());
-            utenteSkinService.aggiungiSkinUtente(utenteSkin);
-
+            utenteSkinService.aggiungiSkinUtente(nome);
             return new ResponseEntity<>(new ResponseMessage("Skin acquired!"), HttpStatus.OK);
         }catch (SkinAlreadyOwnedException e)
         {
@@ -153,20 +86,14 @@ public class SkinController
     {
         try
         {
-            if (nome.isEmpty())
-                return new ResponseEntity<>(new ResponseMessage("Nome invalido"), HttpStatus.BAD_REQUEST);
-            if (crediti <= 0)
-                return new ResponseEntity<>(new ResponseMessage("Inserire un valore di crediti maggiore di 0"), HttpStatus.BAD_REQUEST);
-
-            Skin skin = new Skin();
-            skin.setCrediti(crediti);
-            skin.setNome(nome);
-            skinService.nuovaSkin(skin);
-
+            skinService.nuovaSkin(nome, crediti);
             return new ResponseEntity<>(new ResponseMessage("Skin added!"), HttpStatus.CREATED);
         } catch (SkinAlreadyExistsException e)
         {
             return new ResponseEntity<>(new ResponseMessage("Skin already exists"), HttpStatus.BAD_REQUEST);
+        } catch (IllegalArgumentException e)
+        {
+            return new ResponseEntity<>(new ResponseMessage(e.getMessage()), HttpStatus.BAD_REQUEST);
         }
     }
 

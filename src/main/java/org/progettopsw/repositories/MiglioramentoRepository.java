@@ -10,9 +10,14 @@ import java.util.List;
 @Repository
 public interface MiglioramentoRepository extends JpaRepository<Miglioramento, Long>
 {
-    @Query("SELECT M FROM Miglioramento M WHERE M.nome LIKE ?1")
+
+    List<Miglioramento> findAllByOrderByNomeAsc();
+
     Miglioramento findByNome(String nome);
+
+    List<Miglioramento> findMiglioramentoByNomeContaining(String nome);
 
     @Query("SELECT M FROM Miglioramento M WHERE M.crediti <= ?1")
     List<Miglioramento> findByCrediti(int crediti);
 }
+

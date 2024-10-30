@@ -3,7 +3,10 @@ package org.progettopsw.models;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.SortComparator;
 
+import java.io.Serializable;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 

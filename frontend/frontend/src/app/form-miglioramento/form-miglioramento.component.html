@@ -8,20 +8,24 @@
             </mat-form-field>
             <mat-form-field>
                 <mat-label>Costo</mat-label>
-                <input matInput type="number" [(ngModel)]="crediti" name="crediti" required>
+                <input matInput type="number" [(ngModel)]="crediti" name="crediti" min="0" required>
             </mat-form-field>
             <mat-form-field>
                 <mat-label>Quantità Massima</mat-label>
-                <input matInput type="number" [(ngModel)]="quantitaMassima" name="quantitaMassima" required>
+                <input matInput type="number" [(ngModel)]="quantitaMassima" name="quantitaMassima" min="0" required>
             </mat-form-field>
             <mat-form-field>
                 <mat-label>Descrizione</mat-label>
                 <input matInput [(ngModel)]="descrizione" name="descrizione" required>
             </mat-form-field>
-            <mat-form-field>
-                <mat-label>Tipologia</mat-label>
-                <input matInput [(ngModel)]="tipologia" name="tipologia" required>
-            </mat-form-field>
+            <div>
+            <mat-label>Tipologia</mat-label>
+                <select matInput [(ngModel)]="tipologia" name="tipologia">
+                    <option *ngFor="let tipologia of tipologie">
+                        {{ tipologia }}
+                    </option>
+                </select>
+            </div>
             <button mat-button type="submit">Invia</button>
         </form>
     </div>

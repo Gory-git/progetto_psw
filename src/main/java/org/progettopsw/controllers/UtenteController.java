@@ -1,24 +1,14 @@
 package org.progettopsw.controllers;
 
-import org.progettopsw.models.Utente;
-import org.progettopsw.support.dto.UtenteDTO;
-import org.progettopsw.support.jwt.CustomJWT;
-import org.progettopsw.support.jwt.CustomJWTConverter;
 import org.progettopsw.support.messages.ResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.progettopsw.services.UtenteService;
 import org.progettopsw.support.exceptions.UserAlreadyExistsException;
 import org.progettopsw.support.exceptions.UserNotFoundException;
-
-import javax.validation.Valid;
-import java.util.ArrayList;
 
 @RestController
 @RequestMapping(value = "/user")
@@ -36,30 +26,15 @@ public class UtenteController
     @PreAuthorize("hasAnyRole('ROLE_user','ROLE_admin')")
     public ResponseEntity registerUtente()
     {
-        CustomJWT cJWT = (CustomJWT) SecurityContextHolder.getContext().getAuthentication();
         try
         {
-            if (utenteService.trovaUtente(cJWT.getEmail()) != null)
-                return new ResponseEntity<>(new ResponseMessage("Utente already exists"), HttpStatus.OK);
+            utenteService.registraUtente();
 
-        }catch (UserNotFoundException e)
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (UserAlreadyExistsException e)
         {
-            try
-            {
-                Utente utente = new Utente();
-                utente.setEmail(cJWT.getEmail());
-                utente.setNome(cJWT.getNome());
-                utente.setCognome(cJWT.getCognome());
-                utente.setCrediti(0);
-                utenteService.registraUtente(utente);
-
-                return new ResponseEntity<>(HttpStatus.OK);
-            } catch (UserAlreadyExistsException ex)
-            {
-                return new ResponseEntity<>(new ResponseMessage("User already exists"), HttpStatus.OK);
-            }
+            return new ResponseEntity<>(new ResponseMessage("User already exists"), HttpStatus.OK);
         }
-        return new ResponseEntity<>(new ResponseMessage("Error!"), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @GetMapping("/page")
@@ -68,21 +43,7 @@ public class UtenteController
     {
         try
         {
-            CustomJWT cJWT = (CustomJWT) SecurityContextHolder.getContext().getAuthentication();
-            
-            Utente utente = utenteService.trovaUtente(cJWT.getEmail());
-
-
-            UtenteDTO ret = new UtenteDTO();
-            
-            ret.setId(utente.getId_utente());
-            ret.setEmail(utente.getEmail());
-            ret.setNome(utente.getNome());
-            ret.setCognome(utente.getCognome());
-            ret.setCrediti(utente.getCrediti());
-            ret.setRuolo(cJWT.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_admin")));
-
-            return new ResponseEntity<>(ret, HttpStatus.OK);
+            return new ResponseEntity<>(utenteService.getDTO(), HttpStatus.OK);
         } catch (UserNotFoundException e)
         {
             return new ResponseEntity<>(new ResponseMessage("User don't exists"), HttpStatus.NOT_FOUND);

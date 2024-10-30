@@ -8,7 +8,7 @@
             </mat-form-field>
             <mat-form-field>
                 <mat-label>Costo</mat-label>
-                <input matInput type="number" [(ngModel)]="crediti" name="crediti" required>
+                <input matInput type="number" [(ngModel)]="crediti" name="crediti" min="0" required>
             </mat-form-field>
             <button mat-button type="submit">Invia</button>
         </form>

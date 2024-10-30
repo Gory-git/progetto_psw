@@ -2,8 +2,12 @@ package org.progettopsw.services;
 
 import jakarta.persistence.LockModeType;
 import org.progettopsw.models.Utente;
+import org.progettopsw.support.dto.UtenteDTO;
+import org.progettopsw.support.jwt.CustomJWT;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,10 +23,19 @@ public class UtenteService
     private UtenteRepository utenteRepository;
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    public Utente registraUtente(Utente utente) throws UserAlreadyExistsException
+    public Utente registraUtente() throws UserAlreadyExistsException
     {
-        if(utenteRepository.existsByEmail(utente.getEmail()))
+        CustomJWT cJWT = (CustomJWT) SecurityContextHolder.getContext().getAuthentication();
+
+        if(utenteRepository.existsByEmail(cJWT.getEmail()))
             throw new UserAlreadyExistsException();
+
+        Utente utente = new Utente();
+        utente.setEmail(cJWT.getEmail());
+        utente.setNome(cJWT.getNome());
+        utente.setCognome(cJWT.getCognome());
+        utente.setCrediti(0);
+
         return utenteRepository.save(utente);
     }
 
@@ -38,18 +51,30 @@ public class UtenteService
     }
 
     @Transactional(readOnly = false)
-    public Utente trovaUtente(String email) throws UserNotFoundException
+    public Utente trovaUtente() throws UserNotFoundException
     {
-        Utente ret = utenteRepository.findByEmailIgnoreCase(email);
-        if (ret == null)
+
+        CustomJWT cJWT = (CustomJWT) SecurityContextHolder.getContext().getAuthentication();
+
+        Utente utente = utenteRepository.findByEmailIgnoreCase(cJWT.getEmail());
+        if (utente == null)
             throw new UserNotFoundException();
-        return ret;
+        return utente;
     }
 
-    @Transactional(readOnly = false)
-    public void nuovoUtente(Utente utente) throws UserAlreadyExistsException {
-        if (utenteRepository.existsByEmail(utente.getEmail()))
-            throw new UserAlreadyExistsException();
-        utenteRepository.save(utente);
+    @Transactional(readOnly = true)
+    public UtenteDTO getDTO() throws UserNotFoundException
+    {
+        CustomJWT cJWT = (CustomJWT) SecurityContextHolder.getContext().getAuthentication();
+
+        Utente utente = trovaUtente();
+        UtenteDTO ret = new UtenteDTO();
+        ret.setId(utente.getId_utente());
+        ret.setEmail(utente.getEmail());
+        ret.setNome(utente.getNome());
+        ret.setCognome(utente.getCognome());
+        ret.setCrediti(utente.getCrediti());
+        ret.setRuolo(cJWT.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_admin")));
+        return ret;
     }
 }
